@@ -25,7 +25,7 @@ ncol(penguins)
 
 # Exercise 2
 # `bill_depth_mm` - a number denoting bill depth (millimeters)
-?penguins
+# ?penguins
 
 # Exercise 3
 ggplot(
@@ -260,6 +260,8 @@ ggplot(penguins, aes(x = island, fill = species)) +
 
 ggplot(penguins, aes(x = species, fill = island)) +
   geom_bar(position = "fill")
-
 # The two chats above is concerning the dependent variable and independent variable.
 # The first chat is the proportion of each species on each island, and the second chat is the proportion of each island for each species.
+
+# C2
+# Alt + Shift + K show the keyboard shortcuts in RStudio
