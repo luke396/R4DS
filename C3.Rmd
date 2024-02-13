@@ -1,0 +1,294 @@
+---
+title: "C3 - Data transformation"
+output:
+  html_document: default
+date: "2024-02-13"
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(results='hide')
+```
+
+```{r include=FALSE}
+library(nycflights13)
+library(tidyverse)
+```
+
+## C3.2 Rows
+
+```{r}
+# A shorter way to select flights that departed in January or February, %in% means "is in" or "is one of"
+flights |> # used on row, not change the ordinal data
+  filter(month %in% c(1, 2))
+
+flights |> # just arrange the data, not change the ordinal data
+  arrange(year, month, day, dep_time)
+
+# Remove duplicate rows, if any
+flights |>
+  distinct()
+
+# Find all unique origin and destination pairs
+flights |>
+  distinct(origin, dest)
+# to keep all columns, instead return just selected columns, `.keep_all` default is `FALSE`
+flights |>
+  distinct(origin, dest, .keep_all = TRUE)
+# Note that it will just return the first unique one.
+
+flights |>
+  count(origin, dest, sort = TRUE)
+# The `count` is recommend by the books to count the unique row.
+# But even just using `distinct`, the result will also show the tibble 's size
+```
+
+### Exercise 1
+
+1.  arrival delay for tow or more hours
+
+```{r}
+flights |>
+  filter(arr_delay >= 120)
+```
+
+2.  flew to Houston
+
+```{r}
+flights |>
+  filter(dest %in% c("IAH", "HOU"))
+```
+
+3.  were operated by United, American, or Delta
+
+```{r}
+# use `airlines` to check the carrier
+flights |>
+  filter(carrier %in% c("UA", "AA", "DL"))
+```
+
+4.  departed in summer (July, August, and September)
+
+```{r}
+flights |>
+  filter(
+    month %in% c(7:9),
+  )
+```
+
+5.  arrived more than two hours late, but didn't leave late
+
+```{r}
+flights |>
+  filter(arr_delay >= 120, dep_delay <= 0)
+```
+
+6.  were delayed by at least an hour, but made up over 30 minutes in flight
+
+```{r}
+flights |>
+  filter(arr_delay >= 60, air_time > 30)
+```
+
+### Exercise 2
+
+Find the most departure delayed flights
+
+```{r}
+flights |>
+  arrange(desc(dep_delay)) |>
+  slice_head(n = 1)
+```
+
+Find the earliest departure flights
+
+```{r}
+flights |>
+  arrange(dep_time) |>
+  slice_head(n = 5)
+```
+
+### Exercise 3
+
+Sort flights with time in the air
+
+```{r}
+flights |>
+  arrange(arr_time - dep_time)
+```
+
+### Exercise 4
+
+Was there a flight on every day
+
+```{r}
+flights |>
+  distinct(year, month, day) |>
+  count() # yes, the result is 365
+```
+
+### Exercise 5
+
+the farthest flights and the least flights
+
+```{r}
+flights |>
+  arrange(distance) |>
+  slice_head(n = 1)
+
+flights |>
+  arrange(desc(distance)) |>
+  slice_head(n = 1)
+```
+
+### Exercise 6
+
+If want to use `filter` and `arrange` together, the order is matter. Depending on specific analysis. Generally, if you're filtering a large data-set and only need a subset of rows to be sorted, it's better to filter first to reduce the amount of data being sorted. However, if you need to sort the entire data-set and then filter based on specific criteria, arranging first might be more appropriate.
+
+## C3.3 Columns
+
+```{r}
+flights |>
+  mutate(
+    gain = dep_delay - arr_delay,
+    speed = distance / air_time * 60,
+    .after = day
+  )
+flights |>
+  mutate(
+    gain = dep_delay - arr_delay,
+    hours = air_time / 60,
+    gain_per_hour = gain / hours,
+    .keep = "used"
+  )
+
+# There is many ways in `select`, should check details in the help page.
+flights |>
+  select(!year:day)
+flights |>
+  select(where(is.character))
+flights |>
+  select(tail_num = tailnum) # one way to rename the column
+
+flights |>
+  rename(tail_num = tailnum) # another way to rename the column
+#  janitor::clean_names() is a good way to clean the column names
+```
+
+### Exercise 1
+
+1.  Compare `dep_time`, `sched_dep_time`, and `dep_delay`. How would you expect those three numbers to be related?
+
+```{r}
+# use`dep_time` - `sched_dep_time` to calculate the delay
+# Compare the `delay` with `dep_delay`
+flights <- flights |>
+  mutate(
+    dep_time_diff = dep_time - sched_dep_time,
+    comparison = dep_time_diff == dep_delay
+  )
+```
+
+Most of them are same, but their difference not same, they're all multiples of ten.
+
+```{r}
+summary(flights$comparison) 
+
+flights |>
+  select(comparison, dep_time_diff, dep_delay) |>
+  filter(comparison == FALSE) |>
+  head(10)
+
+flights |>
+  select(comparison, dep_time_diff, dep_delay) |>
+  filter(comparison == FALSE) |>
+  tail(10)
+
+# delete the created `dep_time_diff` and `comparison` columns
+flights <- flights |>
+  select(-dep_time_diff, -comparison)
+```
+
+### Exercise 2
+
+2.  Brainstorm as many ways as possible to select `dep_time`, `dep_delay`, `arr_time`, and `arr_delay` from `flights`.
+
+```{r}
+flights |>
+  select(dep_time, dep_delay, arr_time, arr_delay)
+
+flights |>
+  select(starts_with(c("dep", "arr")))
+
+flights |>
+  select(matches("^(dep|arr).*?(time|delay)$"))
+
+flights |>
+  select(all_of(c("dep_time", "dep_delay", "arr_time", "arr_delay")))
+
+flights |>
+  select(contains("dep"), contains("arr")) |>
+  select(-starts_with("sched")) |>
+  select(-carrier)
+```
+
+### Exercise 3
+
+3.  What happens if you specify the name of the same variable multiple times in a [`select()`](https://dplyr.tidyverse.org/reference/select.html) call?
+
+```{r}
+flights |>
+  select(dep_time, dep_time, dep_time) # just return one column
+```
+
+### Exercise 4
+
+4.  What does the [`any_of()`](https://tidyselect.r-lib.org/reference/all_of.html) function do? Why might it be helpful in conjunction with this vector?
+
+```{r}
+variables <- c("year", "month", "day", "dep_delay", "arr_delay")
+flights |>
+  select(any_of(variables))
+```
+
+What is interesting is that it's difference between `any_of` and `all_of`. `any_of` will return the columns that are in the vector, if some columns are not in the vector, it will not return them. But `all_of` will throw an error if some columns are not in the vector. As said in document, `any_of` is useful when negative selection.
+
+### Exercise 5
+
+5.  Does the result of running the following code surprise you? How do the select helpers deal with upper and lower case by default? How can you change that default?
+
+```{r}
+flights |> select(contains("TIME")) # Capital non-sensitive
+flights |> select(contains("TIME", ignore.case = FALSE)) # Capital sensitive
+```
+
+### Exercise 6
+
+6.  Rename `air_time` to `air_time_min` to indicate units of measurement and move it to the beginning of the data frame.
+```{r}
+flights |>
+  rename(air_time_min = air_time) |>
+  relocate(air_time_min)
+```
+
+### Exercise 7
+7. Why doesn’t the following work, and what does the error mean?
+
+```{r}
+flights |> 
+  select(tailnum) |> 
+  arrange(arr_delay)
+#> Error in `arrange()`:
+#> ℹ In argument: `..1 = arr_delay`.
+#> Caused by error:
+#> ! object 'arr_delay' not found
+```
+Because the order of the `arrange` and `select` is wrong, the `arr_delay` is not in the data frame after the `select` function. So, the `arrange` function can't find the `arr_delay` column.
+
+```{r}
+flights |> 
+  arrange(arr_delay) |> 
+  select(tailnum) # works well
+```
+
