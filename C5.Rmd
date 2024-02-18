@@ -1,0 +1,47 @@
+---
+title: "C5"
+output: html_notebook
+---
+
+```{r}
+knitr::opts_chunk$set(results='hide')
+
+library(nycflights13)
+library(tidyverse)
+```
+
+## C5.2 Tidy data
+
+### Exercise
+
+1.  For each of the sample tables, describe what each observation and each column represents.
+
+This is easy to do by checking the data.
+
+2.  Sketch out the process you’d use to calculate the `rate` for `table2` and `table3`. You will need to perform four operations:
+
+    a.  Extract the number of TB cases per country per year.
+
+    b.  Extract the matching population per country per year.
+
+    c.  Divide cases by population, and multiply by 10000.
+
+    d.  Store back in the appropriate place.
+
+You haven’t yet learned all the functions you’d need to actually perform these operations, but you should still be able to think through the transformations you’d need.
+
+```{r}
+cases_count <- table2 |>
+  filter(type == "cases") |>
+  select(count)
+
+population_count <- table2 |>
+  filter(type == "population") |>
+  select(count)
+
+rate <- cases_count / population_count * 10000
+rate
+```
+For `table3`, should transform the third column from string to equation and then calculate the rate. 
+
+
