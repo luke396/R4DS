@@ -1,0 +1,134 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(results='hide')
+
+library(nycflights13)
+library(tidyverse)
+library(janitor)
+```
+
+## C9.2 Aesthetic mappings
+
+### Exercise
+
+1. create a scatterplot of `hwy` vs. `displ` where the points are pink filled in triangles.
+
+```{r}
+ggplot(mpg, aes(x=displ, y=hwy)) +
+  geom_point(shape=17, color="pink", fill="pink")
+```
+
+2. Why did the following code not result in a plot with blue points?
+
+color = "blue" should be placed as an argument of `geom_point`, not inside `aes`.
+```{r} 
+ggplot(mpg) +
+  geom_point(aes(x = displ, y = hwy), color = "blue")
+```
+
+3. What does the `stroke` aesthetic do? What shapes does it work with? (Hint: use `?geom_point`)
+
+`stroke` is used to set the line's width.
+
+4. What happens if you map an aesthetic to something other than a variable name, like `aes(color = displ < 5)`? Note, you’ll also need to specify `x` and `y`.
+
+It use a logical condition to colored the point in blue. Note that, should not set `color` as an argument of `geom_point` in this case. `geom_point(color="blue", aes(color = displ < 5))` will set all points to blue.
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = displ < 5))
+
+```
+
+## C9.3 Geometric objects
+
+The below chat's red points are created two layers, red points and red open circles.
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_point(
+    data = mpg |> filter(class == "2seater"), 
+    color = "red"
+  ) +
+  geom_point(
+    data = mpg |> filter(class == "2seater"), 
+    shape = "circle open", size = 3, color = "red"
+  )
+```
+
+```{r}
+library(ggridges)
+
+ggplot(mpg, aes(x = hwy, y = drv, fill = drv, color = drv)) +
+  geom_density_ridges(alpha = 0.5, show.legend = FALSE)
+```
+
+### Exercise
+
+1. What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_line()
+
+ggplot(mpg, aes(x = class, y = hwy)) +
+  geom_boxplot()
+
+ggplot(mpg, aes(x = hwy)) +
+  geom_histogram()
+```
+
+2. Earlier in this chapter we `used show.legend` without explaining it:
+
+As shown below, it used to hide the legend of the geom.
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_smooth(aes(color = drv), show.legend = FALSE)
+
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_smooth(aes(color = drv))
+```
+
+3. What does the `se` argument to `geom_smooth()` do?
+
+It used to control whether show the confidence level.
+
+4. Recreate the R code necessary to generate the following graphs. Note that wherever a categorical variable is used in the plot, it’s `drv`.
+
+```{r}
+library(patchwork)
+
+p1 <- ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(color = "black") +
+  geom_smooth(color = "blue", se = FALSE)
+
+p2 <- ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(color = "black") +
+  geom_smooth(aes(group = drv), color = "blue", se = FALSE)
+
+p3 <- ggplot(mpg, aes(x = displ, y = hwy, color = drv)) +
+  geom_point() +
+  geom_smooth(aes(group = drv), se = FALSE)
+
+p4 <- ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_smooth(color = "blue", se = FALSE)
+
+p5 <- ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_smooth(color = "blue", se = FALSE, aes(linetype = drv))
+
+p6 <- ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_point(shape = "circle open", size = 3, color = "white")
+
+(p1 | p2) / (p3 | p4) / (p5 | p6)
+```
+
+## C9.4 Facets
