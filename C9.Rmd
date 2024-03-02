@@ -5,7 +5,7 @@ output: html_notebook
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(results='hide')
+knitr::opts_chunk$set(results = "hide")
 
 library(nycflights13)
 library(tidyverse)
@@ -16,33 +16,33 @@ library(janitor)
 
 ### Exercise
 
-1. create a scatterplot of `hwy` vs. `displ` where the points are pink filled in triangles.
+1.  create a scatterplot of `hwy` vs. `displ` where the points are pink filled in triangles.
 
 ```{r}
-ggplot(mpg, aes(x=displ, y=hwy)) +
-  geom_point(shape=17, color="pink", fill="pink")
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(shape = 17, color = "pink", fill = "pink")
 ```
 
-2. Why did the following code not result in a plot with blue points?
+2.  Why did the following code not result in a plot with blue points?
 
 color = "blue" should be placed as an argument of `geom_point`, not inside `aes`.
-```{r} 
+
+```{r}
 ggplot(mpg) +
   geom_point(aes(x = displ, y = hwy), color = "blue")
 ```
 
-3. What does the `stroke` aesthetic do? What shapes does it work with? (Hint: use `?geom_point`)
+3.  What does the `stroke` aesthetic do? What shapes does it work with? (Hint: use `?geom_point`)
 
 `stroke` is used to set the line's width.
 
-4. What happens if you map an aesthetic to something other than a variable name, like `aes(color = displ < 5)`? Note, you’ll also need to specify `x` and `y`.
+4.  What happens if you map an aesthetic to something other than a variable name, like `aes(color = displ < 5)`? Note, you’ll also need to specify `x` and `y`.
 
 It use a logical condition to colored the point in blue. Note that, should not set `color` as an argument of `geom_point` in this case. `geom_point(color="blue", aes(color = displ < 5))` will set all points to blue.
 
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy)) +
   geom_point(aes(color = displ < 5))
-
 ```
 
 ## C9.3 Geometric objects
@@ -50,14 +50,14 @@ ggplot(mpg, aes(x = displ, y = hwy)) +
 The below chat's red points are created two layers, red points and red open circles.
 
 ```{r}
-ggplot(mpg, aes(x = displ, y = hwy)) + 
-  geom_point() + 
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
   geom_point(
-    data = mpg |> filter(class == "2seater"), 
+    data = mpg |> filter(class == "2seater"),
     color = "red"
   ) +
   geom_point(
-    data = mpg |> filter(class == "2seater"), 
+    data = mpg |> filter(class == "2seater"),
     shape = "circle open", size = 3, color = "red"
   )
 ```
@@ -71,7 +71,8 @@ ggplot(mpg, aes(x = hwy, y = drv, fill = drv, color = drv)) +
 
 ### Exercise
 
-1. What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?
+1.  What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?
+
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy)) +
   geom_line()
@@ -83,7 +84,7 @@ ggplot(mpg, aes(x = hwy)) +
   geom_histogram()
 ```
 
-2. Earlier in this chapter we `used show.legend` without explaining it:
+2.  Earlier in this chapter we `used show.legend` without explaining it:
 
 As shown below, it used to hide the legend of the geom.
 
@@ -95,40 +96,150 @@ ggplot(mpg, aes(x = displ, y = hwy)) +
   geom_smooth(aes(color = drv))
 ```
 
-3. What does the `se` argument to `geom_smooth()` do?
+3.  What does the `se` argument to `geom_smooth()` do?
 
 It used to control whether show the confidence level.
 
-4. Recreate the R code necessary to generate the following graphs. Note that wherever a categorical variable is used in the plot, it’s `drv`.
+4.  Recreate the R code necessary to generate the following graphs. Note that wherever a categorical variable is used in the plot, it’s `drv`.
 
 ```{r}
+# This is improved by ChatGPT
 library(patchwork)
 
-p1 <- ggplot(mpg, aes(x = displ, y = hwy)) +
-  geom_point(color = "black") +
+base_plot <- function() {
+  ggplot(mpg, aes(x = displ, y = hwy)) +
+    geom_point(color = "black") +
+    theme_minimal()
+}
+
+p1 <- base_plot() +
   geom_smooth(color = "blue", se = FALSE)
 
-p2 <- ggplot(mpg, aes(x = displ, y = hwy)) +
-  geom_point(color = "black") +
+p2 <- base_plot() +
   geom_smooth(aes(group = drv), color = "blue", se = FALSE)
 
-p3 <- ggplot(mpg, aes(x = displ, y = hwy, color = drv)) +
-  geom_point() +
-  geom_smooth(aes(group = drv), se = FALSE)
+p3 <- base_plot() +
+  geom_point(aes(color = drv)) + geom_smooth(aes(group = drv), se = FALSE)
 
-p4 <- ggplot(mpg, aes(x = displ, y = hwy)) +
-  geom_point(aes(color = drv)) +
-  geom_smooth(color = "blue", se = FALSE)
+p4 <- base_plot() +
+  geom_point(aes(color = drv)) + geom_smooth(color = "blue", se = FALSE)
 
-p5 <- ggplot(mpg, aes(x = displ, y = hwy)) +
-  geom_point(aes(color = drv)) +
-  geom_smooth(color = "blue", se = FALSE, aes(linetype = drv))
+p5 <- base_plot() +
+  geom_point(aes(color = drv)) + geom_smooth(color = "blue", se = FALSE, aes(linetype = drv))
 
-p6 <- ggplot(mpg, aes(x = displ, y = hwy)) +
-  geom_point(aes(color = drv)) +
-  geom_point(shape = "circle open", size = 3, color = "white")
+p6 <- base_plot() +
+  geom_point(aes(color = drv)) + geom_point(shape = "circle open", size = 3, color = "white")
 
+# Combine plots using patchwork
 (p1 | p2) / (p3 | p4) / (p5 | p6)
 ```
 
 ## C9.4 Facets
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  # for categorical variables, and stay y-axis free
+  facet_grid(drv ~ cyl, scales = "free_y")
+```
+
+### Exercise
+
+1.  What happens if you facet on a continuous variable?
+
+As shown below, `cty` is a continuous variable, if facet on it, the plot will be split by each value of `cty` times each value of `drv`(combination of their values).
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  facet_grid(drv ~ cty, scales = "free_y")
+```
+
+2.  What do the empty cells in the plot above with `facet_grid(drv ~ cyl)` mean? Run the following code. How do they relate to the resulting plot?
+
+The empty cell indicates that there is no data in the corresponding/particular combination of `drv` and `cyl`.
+
+```{r}
+ggplot(mpg) +
+  geom_point(aes(x = drv, y = cyl))
+```
+
+3.  What plots does the following code make? What does `.` do?
+
+```{r}
+ggplot(mpg) +
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+
+ggplot(mpg) +
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+```
+
+`.` represents all variables in dataset. For the fist one, `drv ~ .` specifies that should facet by `drv` in rows(on y-axis), and `.` means columns are all other variables in dataset. It will show all data in dataset with specific level of `drv` as demo codes to show all data with `drv == 4` below, it as same as the first row in above first chat.
+
+```{r}
+ggplot(
+  mpg |> filter(drv == 4) |> select(displ, hwy),
+  aes(x = displ, y = hwy)
+) +
+  geom_point()
+```
+
+4.  Take the first faceted plot in this section:
+
+```{r}
+ggplot(mpg) +
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_wrap(~class, nrow = 2)
+
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = class))
+```
+
+What are the advantages to using faceting instead of the color aesthetic? What are the disadvantages? How might the balance change if you had a larger dataset?
+
+The advantage of using faceting is that it can show more details of the data, and the disadvantage is that it will make the plot more complex. If you have a larger dataset, the balance will change, and the advantage of using faceting will be more obvious, especially when you have more levels of specific categorical variables.
+
+5.  Read `?facet_wrap`. What does `nrow` do? What does `ncol` do? What other options control the layout of the individual panels? Why doesn’t `facet_grid()` have `nrow` and `ncol` arguments?
+
+`nrow` and `ncol` are used to control the number of rows and columns of the facet. Other options control the layout of the individual panels are `scales`, `shrink`, `labeller`, `as.table`, `switch`.
+
+`facet_grid()` doesn't have `nrow` and `ncol` arguments because it can specify the layout of the individual panels by `rows` and `columns` directly, and usually it used as below to control what the combination of categorical variables, not like `facet_wrap()` to control the layout of the individual panels.
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
+  facet_grid(rows = vars(drv), cols = vars(cyl))
+```
+
+6. Which of the following plots makes it easier to compare engine size (`displ`) across cars with different drive trains? What does this say about when to place a faceting variable across rows or columns?
+
+The difference between below plots is using level of `drv` as rows or columns. To compare `displ` with different level of `drv`, I think the second plot, using level of `drv` as columns corresponding using `displ` as x-axis, is more suitable as each columns represents a different `dev`, and you can compare the distribution of `displ` in different `drv` more easily. 
+
+This suggests that when you want to compare a continuous variable across different levels of a categorical variable, you should place the faceting variable across columns rather than rows. That allows side-by-side comparison of the distribution within each category of the faceting variable.
+
+```{r}
+ggplot(mpg, aes(x = displ)) + 
+  geom_histogram() + 
+  facet_grid(drv ~ .)
+
+ggplot(mpg, aes(x = displ)) + 
+  geom_histogram() +
+  facet_grid(. ~ drv)
+```
+
+7. Recreate the following plot using `facet_wrap()` instead of `facet_grid()`. How do the positions of the facet labels change?
+
+As seen below, the first using `facet_grid()`, and it will treat different level of `drv` as rows, and the second one using `facet_wrap()` using levels of `drv` as columns.
+
+```{r}
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+
+ggplot(mpg) +
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_wrap(~drv)
+  # facet_wrap(~drv, ncol = 1)
+```

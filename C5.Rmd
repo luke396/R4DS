@@ -5,7 +5,7 @@ output:
 ---
 
 ```{r include=FALSE}}
-knitr::opts_chunk$set(results='hide')
+knitr::opts_chunk$set(results = "hide")
 
 library(nycflights13)
 library(tidyverse)
@@ -55,7 +55,7 @@ billboard_longer <- billboard |>
     values_to = "rank",
     values_drop_na = TRUE
   ) |>
-  mutate(week = parse_number(week)) 
+  mutate(week = parse_number(week))
 # what amazing I have not considered before
 
 billboard_longer |>
@@ -65,21 +65,21 @@ billboard_longer |>
 ```
 
 ```{r}
-who2 |> 
+who2 |>
   pivot_longer(
     cols = !(country:year),
-    names_to = c("diagnosis", "gender", "age"), 
+    names_to = c("diagnosis", "gender", "age"),
     names_sep = "_",
     values_to = "count"
   )
 ```
 
 ```{r}
-household |> 
+household |>
   pivot_longer(
-    cols = !family, 
-    names_to = c(".value", "child"), 
-    names_sep = "_", 
+    cols = !family,
+    names_to = c(".value", "child"),
+    names_sep = "_",
     values_drop_na = TRUE
   )
 ```
@@ -87,7 +87,7 @@ household |>
 ## C5.4 Widening data
 
 ```{r}
-cms_patient_experience |> 
+cms_patient_experience |>
   pivot_wider(
     id_cols = starts_with("org"),
     names_from = measure_cd,
@@ -96,5 +96,3 @@ cms_patient_experience |>
 
 # vignette("pivot", package = "tidyr")
 ```
-
-
