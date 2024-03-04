@@ -8,7 +8,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(results='hide')
+knitr::opts_chunk$set(results = "hide")
 ```
 
 ```{r include=FALSE}
@@ -193,7 +193,7 @@ flights <- flights |>
 Most of them are same, but their difference not same, they're all multiples of ten.
 
 ```{r}
-summary(flights$comparison) 
+summary(flights$comparison)
 
 flights |>
   select(comparison, dep_time_diff, dep_delay) |>
@@ -278,8 +278,8 @@ flights |>
 7.  Why doesn’t the following work, and what does the error mean?
 
 ```{r}
-flights |> 
-  select(tailnum) |> 
+flights |>
+  select(tailnum) |>
   arrange(arr_delay)
 #> Error in `arrange()`:
 #> ℹ In argument: `..1 = arr_delay`.
@@ -290,8 +290,8 @@ flights |>
 Because the order of the `arrange` and `select` is wrong, the `arr_delay` is not in the data frame after the `select` function. So, the `arrange` function can't find the `arr_delay` column.
 
 ```{r}
-flights |> 
-  arrange(arr_delay) |> 
+flights |>
+  arrange(arr_delay) |>
   select(tailnum) # works well
 ```
 
@@ -310,22 +310,24 @@ flights |>
   slice_max(arr_delay, n = 1) |> # with_ties = TRUE to drop the same value rows
   relocate(dest)
 
-daily <- flights |>  
+daily <- flights |>
   group_by(year, month, day)
-daily |> 
-  summarize(n = n(),
-            .groups = "keep")
+daily |>
+  summarize(
+    n = n(),
+    .groups = "keep"
+  )
 
 daily |>
   ungroup() |>
   summarize(
-    avg_delay = mean(dep_delay, na.rm = TRUE), 
+    avg_delay = mean(dep_delay, na.rm = TRUE),
     flights = n()
   )
 
-flights |> 
+flights |>
   summarize(
-    delay = mean(dep_delay, na.rm = TRUE), 
+    delay = mean(dep_delay, na.rm = TRUE),
     n = n(),
     .by = c(origin, dest) # per-operation grouping
   )
@@ -391,7 +393,7 @@ flights |>
   ) |>
   filter(!is.na(hour)) |> # if not, plot will raise an error
   ggplot() +
-  geom_col(aes(x = hour, y = avg_delay), na.rm = TRUE) + 
+  geom_col(aes(x = hour, y = avg_delay), na.rm = TRUE) +
   scale_x_continuous(breaks = 0:23) +
   labs(
     title = "Average delay over the course of the day",
@@ -499,8 +501,8 @@ df |>
 ## C3.6 Case Study
 
 ```{r}
-batters <- Lahman::Batting |> 
-  group_by(playerID) |> 
+batters <- Lahman::Batting |>
+  group_by(playerID) |>
   summarize(
     performance = sum(H, na.rm = TRUE) / sum(AB, na.rm = TRUE),
     n = sum(AB, na.rm = TRUE)
@@ -510,9 +512,9 @@ batters
 Decrease variance and positive linear relationship.
 
 ```{r}
-batters |> 
-  filter(n > 100) |> 
+batters |>
+  filter(n > 100) |>
   ggplot(aes(x = n, y = performance)) +
-  geom_point(alpha = 1 / 10) + 
+  geom_point(alpha = 1 / 10) +
   geom_smooth(se = FALSE)
 ```

@@ -220,11 +220,11 @@ The difference between below plots is using level of `drv` as rows or columns. T
 This suggests that when you want to compare a continuous variable across different levels of a categorical variable, you should place the faceting variable across columns rather than rows. That allows side-by-side comparison of the distribution within each category of the faceting variable.
 
 ```{r}
-ggplot(mpg, aes(x = displ)) + 
-  geom_histogram() + 
+ggplot(mpg, aes(x = displ)) +
+  geom_histogram() +
   facet_grid(drv ~ .)
 
-ggplot(mpg, aes(x = displ)) + 
+ggplot(mpg, aes(x = displ)) +
   geom_histogram() +
   facet_grid(. ~ drv)
 ```
@@ -234,12 +234,12 @@ ggplot(mpg, aes(x = displ)) +
 As seen below, the first using `facet_grid()`, and it will treat different level of `drv` as rows, and the second one using `facet_wrap()` using levels of `drv` as columns.
 
 ```{r}
-ggplot(mpg) + 
+ggplot(mpg) +
   geom_point(aes(x = displ, y = hwy)) +
   facet_grid(drv ~ .)
 
 ggplot(mpg) +
   geom_point(aes(x = displ, y = hwy)) +
   facet_wrap(~drv)
-  # facet_wrap(~drv, ncol = 1)
+# facet_wrap(~drv, ncol = 1)
 ```

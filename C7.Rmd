@@ -6,7 +6,7 @@ date: "2024-02-19"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(results='hide')
+knitr::opts_chunk$set(results = "hide")
 
 library(nycflights13)
 library(tidyverse)
@@ -32,4 +32,3 @@ read_csv(
   col_types = cols(.default = col_character())
 )
 ```
-
